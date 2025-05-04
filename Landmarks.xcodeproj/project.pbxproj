@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		303CCA1F2DC78336006D7DF4 /* Landmarks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Landmarks.app; path = "/Users/akavalchuk/projects/ios/Landmarks/build/Debug-iphoneos/Landmarks.app"; sourceTree = "<absolute>"; };
+		30FBF2892DC7B92200F2EC51 /* Landmarks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Landmarks.app; path = "/Users/akavalchuk/projects/ios/Landmarks/build/Debug-iphoneos/Landmarks.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -58,7 +58,7 @@
 			packageProductDependencies = (
 			);
 			productName = Landmarks;
-			productReference = 303CCA1F2DC78336006D7DF4 /* Landmarks.app */;
+			productReference = 30FBF2892DC7B92200F2EC51 /* Landmarks.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
