@@ -1,0 +1,14 @@
+{
+    "aps": {
+        "alert": {
+            "title": "Landmarks List Received",
+            "body": "You've got new landmarks list"
+        },
+        "category": "LandmarksReceived",
+        "thread-id": "5280"
+    },
+
+    "landmarks": [],
+
+    "Simulator Target Bundle": "io.github.arskov.Landmarks.watchkitapp"
+}

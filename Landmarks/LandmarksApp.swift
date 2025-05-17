@@ -4,10 +4,11 @@
 //
 //  Created by Arseni Kavalchuk on 4.05.25.
 //
-
+import Foundation
 import SwiftUI
 #if os(watchOS)
 import UIKit
+import WatchKit
 #endif
 
 @main
@@ -15,9 +16,11 @@ struct LandmarksApp: App {
     @State private var modelData = ModelData()
     
     #if os(watchOS)
-    var wcSessionManager = WCSessionManagerWatch.shared
+    @WKApplicationDelegateAdaptor
+    private var appDelegate: LandmarksAppAppDelegate
+    private var wcSessionManager = WCSessionManagerWatch.shared
     #else
-    var wcSessionManager = WCSessionManager.shared
+    private var wcSessionManager = WCSessionManager.shared
     #endif
     
     var body: some Scene {
@@ -32,6 +35,7 @@ struct LandmarksApp: App {
         }
         #if os(watchOS)
         WKNotificationScene(controller: NotificationController.self, category: "LandmarkNear")
+        WKNotificationScene(controller: LandmarksNotificationController.self, category: "LandmarksReceived")
         #endif
     }
 }

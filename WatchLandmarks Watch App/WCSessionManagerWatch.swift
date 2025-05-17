@@ -1,12 +1,11 @@
-//
-//  WCSessionManager.swift
-//  Landmarks
-//
-//  Created by Arseni Kavalchuk on 17.05.25.
-//
+import os
 import Foundation
 import WatchConnectivity
-import os
+import UserNotifications
+
+extension Notification.Name {
+    static let wcDidDataHandleComplete = Notification.Name("wcDidDataHandleComplete")
+}
 
 class WCSessionManagerWatch: NSObject, WCSessionDelegate {
     
@@ -53,9 +52,27 @@ class WCSessionManagerWatch: NSObject, WCSessionDelegate {
             let decoder = JSONDecoder()
             let landmarksInfo = try decoder.decode(LandmarksInfo.self, from: jsonData)
             NotificationCenter.default.post(name: .didReceiveLandmarks, object: landmarksInfo)
+            NotificationCenter.default.post(name: .wcDidDataHandleComplete, object: nil)
+            scheduleLocalNotification(with: landmarksInfo)
         } catch {
             os_log(.error, "qqq: Decoding error: %{public}@", error.localizedDescription)
         }
     }
     
+    func scheduleLocalNotification(with landmarksInfo: LandmarksInfo) {
+        let content = UNMutableNotificationContent()
+        content.title = "New Landmarks List Received"
+        content.body = "You have \(landmarksInfo.landmarks.count) new landmarks."
+        content.sound = UNNotificationSound.default
+        content.categoryIdentifier = "LandmarksReceived"
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                os_log(.error, "Failed to schedule local notification: %@", error.localizedDescription)
+            }
+        }
+    }
 }
