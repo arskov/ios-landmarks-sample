@@ -52,9 +52,7 @@ class WCSessionManagerWatch: NSObject, WCSessionDelegate {
         do {
             let decoder = JSONDecoder()
             let landmarksInfo = try decoder.decode(LandmarksInfo.self, from: jsonData)
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .didReceiveLandmarks, object: landmarksInfo)
-            }
+            NotificationCenter.default.post(name: .didReceiveLandmarks, object: landmarksInfo)
         } catch {
             os_log(.error, "qqq: Decoding error: %{public}@", error.localizedDescription)
         }

@@ -59,18 +59,20 @@ class WCSessionManager: NSObject, WCSessionDelegate {
             os_log(.error, "qqq: No session activated")
             return
         }
-        let dto = LandmarksInfo(landmarks: loadData("landmarkData.json"))
-        do {
-            let encoder = JSONEncoder()
-            let dtoData = try encoder.encode(dto)
-            guard let dtoString = String(data: dtoData, encoding: .utf8) else {
-                os_log(.error, "qqq: Failed to convert dtoData to String")
-                return
+        DispatchQueue.global(qos: .background).async {
+            let dto = LandmarksInfo(landmarks: loadData("landmarkData.json"))
+            do {
+                let encoder = JSONEncoder()
+                let dtoData = try encoder.encode(dto)
+                guard let dtoString = String(data: dtoData, encoding: .utf8) else {
+                    os_log(.error, "qqq: Failed to convert dtoData to String")
+                    return
+                }
+                os_log(.info, "qqq: Updating application context with: \(dtoString)")
+                try WCSession.default.updateApplicationContext(["landmarks": dtoString])
+            } catch {
+                os_log(.error, "qqq: Can't update application context: \(error)")
             }
-            os_log(.info, "qqq: Updating application context with: \(dtoString)")
-            try WCSession.default.updateApplicationContext(["landmarks": dtoString])
-        } catch {
-            os_log(.error, "qqq: Can't update application context: \(error)")
         }
     }
     
