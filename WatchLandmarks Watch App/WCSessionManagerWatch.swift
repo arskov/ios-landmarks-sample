@@ -34,7 +34,7 @@ class WCSessionManagerWatch: NSObject, WCSessionDelegate {
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-        os_log(.info, "qqq: Session didReceiveMessage: \(message)")
+        os_log(.info, "qqq: Session didReceiveMessage: \(message) with replyHandler")
         if message["getLandmarks"] != nil {
             let dto = LandmarksInfo(landmarks: loadData("landmarkData.json"))
             replyHandler(["landmarks": dto])
@@ -42,8 +42,11 @@ class WCSessionManagerWatch: NSObject, WCSessionDelegate {
     }
     
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        os_log(.info, "qqq: Received: \(applicationContext)")
-        let dtoString = applicationContext["landmarks"] as! String
+        os_log(.info, "qqq: Session didReceiveApplicationContext")
+        guard let dtoString = applicationContext["landmarks"] as? String else {
+            os_log(.error, "qqq: Failed to get the landmarks data")
+            return
+        }
         guard let jsonData = dtoString.data(using: .utf8) else {
             os_log(.error, "qqq: Failed to convert JSON string to data")
             return
@@ -53,7 +56,9 @@ class WCSessionManagerWatch: NSObject, WCSessionDelegate {
             let landmarksInfo = try decoder.decode(LandmarksInfo.self, from: jsonData)
             NotificationCenter.default.post(name: .didReceiveLandmarks, object: landmarksInfo)
             NotificationCenter.default.post(name: .wcDidDataHandleComplete, object: nil)
-            scheduleLocalNotification(with: landmarksInfo)
+            DispatchQueue.main.async {
+                self.scheduleLocalNotification(with: landmarksInfo)
+            }
         } catch {
             os_log(.error, "qqq: Decoding error: %{public}@", error.localizedDescription)
         }
@@ -63,7 +68,7 @@ class WCSessionManagerWatch: NSObject, WCSessionDelegate {
         let content = UNMutableNotificationContent()
         content.title = "New Landmarks List Received"
         content.body = "You have \(landmarksInfo.landmarks.count) new landmarks."
-        content.sound = UNNotificationSound.default
+        content.sound = .default
         content.categoryIdentifier = "LandmarksReceived"
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
