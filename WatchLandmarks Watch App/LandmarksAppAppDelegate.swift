@@ -44,6 +44,7 @@ class LandmarksAppAppDelegate: NSObject, WKApplicationDelegate {
               WCSession.default.hasContentPending == false else { return }
         
         wcBackgroundTasks.forEach { $0.setTaskCompletedWithSnapshot(false) }
+        wcBackgroundTasks.removeAll()
         
         let date = Date(timeIntervalSinceNow: 1)
         WKApplication.shared().scheduleSnapshotRefresh(withPreferredDate: date, userInfo: nil) { error in
