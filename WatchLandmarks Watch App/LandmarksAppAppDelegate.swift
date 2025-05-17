@@ -66,12 +66,4 @@ class LandmarksAppAppDelegate: NSObject, WKApplicationDelegate {
         }
     }
     
-    func applicationDidFinishLaunching() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error {
-                os_log(.error, "qqq: Notification auth error: %@", error.localizedDescription)
-            }
-        }
-    }
-
 }

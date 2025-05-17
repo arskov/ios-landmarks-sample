@@ -1,9 +1,4 @@
-//
-//  LandmarksApp.swift
-//  Landmarks
-//
-//  Created by Arseni Kavalchuk on 4.05.25.
-//
+import os
 import Foundation
 import SwiftUI
 #if os(watchOS)
@@ -30,6 +25,13 @@ struct LandmarksApp: App {
                 #if !os(watchOS)
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                     wcSessionManager.setLandmarksApplicationContext()
+                }
+                .task {
+                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                        if let error = error {
+                            os_log(.error, "qqq: Notification auth error: %@", error.localizedDescription)
+                        }
+                    }
                 }
                 #endif
         }
