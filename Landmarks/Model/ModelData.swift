@@ -7,10 +7,18 @@
 
 import Foundation
 
+extension Notification.Name {
+    static let didReceiveLandmarks = Notification.Name("didReceiveLandmarks")
+}
+
+struct LandmarksInfo: Hashable, Codable {
+    var landmarks: [Landmark]
+}
+
 @Observable
 class ModelData {
-    var landmarks: [Landmark] = load("landmarkData.json")
-    var hikes: [Hike] = load("hikeData.json")
+    var landmarks: [Landmark] = []
+    var hikes: [Hike] = []
     var profile = Profile.default
 
     var categories: [String: [Landmark]] {
@@ -24,9 +32,23 @@ class ModelData {
        landmarks.filter { $0.isFeatured }
     }
     
+    var landmarksInfo = LandmarksInfo(landmarks: loadData("landmarkData.json"))
+    var receivedLandmarks: [Landmark] = []
+    
+    init() {
+        self.hikes = loadData("hikeData.json")
+        #if os(watchOS)
+        NotificationCenter.default.addObserver(forName: .didReceiveLandmarks, object: nil, queue: .main) { notification in
+            let landmarkInfo = notification.object as! LandmarksInfo
+            self.landmarks = landmarkInfo.landmarks
+        }
+        #else
+        self.landmarks = loadData("landmarkData.json")
+        #endif
+    }
 }
 
-func load<T: Decodable>(_ filename: String) -> T {
+func loadData<T: Decodable>(_ filename: String) -> T {
     let data: Data
 
 
