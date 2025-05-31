@@ -63,7 +63,30 @@ class WCSessionManagerWatch: NSObject, WCSessionDelegate {
             os_log(.error, "qqq: Decoding error: %{public}@", error.localizedDescription)
         }
     }
-    
+
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any]) {
+        os_log(.info, "qqq: Session didReceiveUserInfo")
+        guard let dtoString = userInfo["landmarks"] as? String else {
+            os_log(.error, "qqq: Failed to get the landmarks data")
+            return
+        }
+        guard let jsonData = dtoString.data(using: .utf8) else {
+            os_log(.error, "qqq: Failed to convert JSON string to data")
+            return
+        }
+        do {
+            let decoder = JSONDecoder()
+            let landmarksInfo = try decoder.decode(LandmarksInfo.self, from: jsonData)
+            NotificationCenter.default.post(name: .didReceiveLandmarks, object: landmarksInfo)
+            NotificationCenter.default.post(name: .wcDidDataHandleComplete, object: nil)
+            DispatchQueue.main.async {
+                self.scheduleLocalNotification(with: landmarksInfo)
+            }
+        } catch {
+            os_log(.error, "qqq: Decoding error: %{public}@", error.localizedDescription)
+        }
+    }
+
     func scheduleLocalNotification(with landmarksInfo: LandmarksInfo) {
         let content = UNMutableNotificationContent()
         content.title = "New Landmarks List Received"
@@ -71,7 +94,7 @@ class WCSessionManagerWatch: NSObject, WCSessionDelegate {
         content.sound = .default
         content.categoryIdentifier = "LandmarksReceived"
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in

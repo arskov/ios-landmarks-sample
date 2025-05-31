@@ -24,7 +24,7 @@ struct LandmarksApp: App {
                 .environment(modelData)
                 #if !os(watchOS)
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-                    wcSessionManager.setLandmarksApplicationContext()
+                    wcSessionManager.sendLandmarksData()
                 }
                 .task {
                     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in

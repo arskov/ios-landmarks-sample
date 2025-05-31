@@ -50,7 +50,7 @@ class WCSessionManager: NSObject, WCSessionDelegate {
         }
     }
     
-    func setLandmarksApplicationContext() {
+    func sendLandmarksData() {
         if !WCSession.default.isWatchAppInstalled {
             os_log(.error, "qqq: No watch app")
             return
@@ -59,7 +59,7 @@ class WCSessionManager: NSObject, WCSessionDelegate {
             os_log(.error, "qqq: No session activated")
             return
         }
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .userInitiated).async {
             let dto = LandmarksInfo(landmarks: loadData("landmarkData.json"))
             do {
                 let encoder = JSONEncoder()
@@ -68,10 +68,15 @@ class WCSessionManager: NSObject, WCSessionDelegate {
                     os_log(.error, "qqq: Failed to convert dtoData to String")
                     return
                 }
+#if targetEnvironment(simulator)
                 os_log(.info, "qqq: Updating application context with: \(dtoString)")
                 try WCSession.default.updateApplicationContext(["landmarks": dtoString])
+#else
+                os_log(.info, "qqq: Transferring user data with: \(dtoString)")
+                WCSession.default.transferUserInfo(["landmarks": dtoString])
+#endif
             } catch {
-                os_log(.error, "qqq: Can't update application context: \(error)")
+                os_log(.error, "qqq: Can't update the data: \(error)")
             }
         }
     }
